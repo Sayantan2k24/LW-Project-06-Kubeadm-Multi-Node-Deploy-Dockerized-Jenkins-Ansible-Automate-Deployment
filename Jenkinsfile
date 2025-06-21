@@ -70,18 +70,14 @@ spec:
             steps {
                 script {
                     sh """
-                    # Trigger Ansible Playbook inside permanent Ansible Pod
-                    kubectl exec -n devops deployment/ansible -- bash -c \
-                        "echo 'ansible-playbook /home/ansible/playbooks/deploy-app.yml --extra-vars \"image_name=${IMAGE_NAME} image_tag=${BUILD_NUMBER} app_name=${APP_NAME}\"' > /tmp/deploy-script.sh"
-
-                    kubectl exec -n devops deployment/ansible -- bash /tmp/deploy-script.sh
-
-                    """
+                        kubectl exec -n devops deployment/ansible -- bash -c 'cat <<EOF > /tmp/deploy-script.sh
+ansible-playbook /home/ansible/playbooks/deploy-app.yml --extra-vars "image_name=${IMAGE_NAME} image_tag=${BUILD_NUMBER} app_name=${APP_NAME}"
+EOF'
+                        kubectl exec -n devops deployment/ansible -- bash /tmp/deploy-script.sh
+"""
                 }
             }
         }
-
-        // kubectl exec -n devops deployment/ansible -- bash -c "echo 'ansible-playbook /tmp/deploy-app.yml --extra-vars \"image_name=${IMAGE_NAME} image_tag=${BUILD_NUMBER} app_name=${APP_NAME}\"' > /tmp/deploy-script.sh"
 
         stage('Scale Application') {
             when {
@@ -107,9 +103,3 @@ spec:
         }
     }
 }
-
-// kubectl exec -n devops deployment/ansible -- bash -c "
-// echo 'ansible-playbook /tmp/deploy-app.yml --extra-vars \"image_name=sayantan2k21/demo-flask image_tag=v17 app_name=demo-flask cont_port=50000\"' > /tmp/deploy-script.sh
-// "
-
-//  kubectl exec -n devops deployment/ansible -- bash /tmp/deploy-script.sh
