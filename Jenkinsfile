@@ -72,7 +72,7 @@ spec:
                     sh """
                     # Trigger Ansible Playbook inside permanent Ansible Pod
                     kubectl exec -n devops deployment/ansible -- bash -c \
-                        "echo 'ansible-playbook /tmp/test-deploy.yaml --extra-vars \"image_name=${IMAGE_NAME} image_tag=${BUILD_NUMBER} app_name=${APP_NAME}\"' > /tmp/deploy-script.sh"
+                        "echo 'ansible-playbook /home/ansible/playbooks/deploy-app.yml --extra-vars \"image_name=${IMAGE_NAME} image_tag=${BUILD_NUMBER} app_name=${APP_NAME}\"' > /tmp/deploy-script.sh"
 
                     kubectl exec -n devops deployment/ansible -- bash /tmp/deploy-script.sh
 
