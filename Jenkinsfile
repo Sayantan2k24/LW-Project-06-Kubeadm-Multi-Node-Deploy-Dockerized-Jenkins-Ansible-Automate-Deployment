@@ -78,19 +78,19 @@ EOF'
             }
         }
 
-        stage('Scale Application') {
-            when {
-                branch 'production'
-            }
-            steps {
-                container('ansible') {
-                    sh '''
-                    ansible-playbook /etc/ansible/playbooks/scale-deployment.yml \
-                      --extra-vars replicas=5 app_name=${APP_NAME}
-                    '''
-                }
-            }
-        }
+        // stage('Scale Application') {
+        //     when {
+        //         branch 'production'
+        //     }
+        //     steps {
+        //         container('ansible') {
+        //             sh '''
+        //             ansible-playbook /etc/ansible/playbooks/scale-deployment.yml \
+        //               --extra-vars replicas=5 app_name=${APP_NAME}
+        //             '''
+        //         }
+        //     }
+        // }
     }
 
     post {
