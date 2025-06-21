@@ -73,7 +73,7 @@ spec:
 ansible-playbook /home/ansible/playbooks/deploy-app.yml --extra-vars "image_name=${IMAGE_NAME} image_tag=${BUILD_NUMBER} app_name=${APP_NAME}"
 EOF'
                         kubectl exec -n devops deployment/ansible -- bash /tmp/deploy-script.sh
-"""
+                    """
                 }
             }
         }
