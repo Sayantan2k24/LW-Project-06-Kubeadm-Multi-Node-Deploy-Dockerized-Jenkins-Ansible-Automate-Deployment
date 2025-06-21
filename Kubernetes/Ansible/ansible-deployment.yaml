@@ -21,16 +21,32 @@ spec:
       serviceAccountName: jenkins-ansible-sa  
       nodeSelector:
         node: worker_node01
+
+      # define an init contnainer that copies files from one volume to another volume, writable
+      initContainers:
+        - name: copy-playbooks
+          image: busybox
+          command: ["/bin/sh", "-c", "cp -r /config/. /playbooks/"] # copies everything inside /config/ (including hidden files like .ansible.cfg etc.)
+          volumeMounts:
+            - name: ansible-playbooks-config
+              mountPath: /config
+            - name: ansible-playbooks
+              mountPath: /playbooks
+              
+      # define the main ansible container
       containers:
       - name: ansible
         image: docker.io/sayantan2k21/ansible-master-minimal:rhel9-v1 # use base image # and setup manually
         volumeMounts:
+        # mounting the writable volume with all the playbooks copied
         - name: ansible-playbooks
           mountPath: /home/ansible/playbooks
+
         - name: ssh-keys
           mountPath: /home/ansible/ssh-keys
         - name: kubectl-binary
           mountPath: /usr/local/bin/kubectl
+
         - name: service-account-token
           mountPath: /var/run/secrets/kubernetes.io/serviceaccount
           readOnly: true
@@ -38,12 +54,13 @@ spec:
         - name: ANSIBLE_HOST_KEY_CHECKING
           value: "False"
       volumes:
-      - name: ansible-playbooks
+      - name: ansible-playbooks # name of volume
+        emptyDir: {}   # Writable scratch volume
+
+      - name: ansible-playbooks-config # name of volume
         configMap:
-          name: ansible-playbooks
-      - name: ansible-inventory
-        configMap:
-          name: ansible-inventory
+          name: ansible-playbooks # name of configmap  # Read-only, this is where your YAML files are stored # already created before
+
       - name: ssh-keys
         secret:
           secretName: ansible-ssh-keys
