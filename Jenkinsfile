@@ -28,7 +28,7 @@ spec:
     }
 
     environment {
-        DOCKER_REGISTRY = "sayantan2k21"
+        DOCKER_REGISTRY = "docker.io/sayantan2k21"
         APP_NAME = "06-kubeadm-jenkins-ansible-test-app"
         IMAGE_NAME = "${DOCKER_REGISTRY}/${APP_NAME}"
         CONTAINER_PORT = "5000"
@@ -71,13 +71,17 @@ spec:
                 script {
                     sh """
                     # Trigger Ansible Playbook inside permanent Ansible Pod
-                    kubectl exec -n devops deployment/ansible -- \
-                      ansible-playbook /home/ansible/playbooks/deploy-app.yml \
-                      --extra-vars image_name=${IMAGE_NAME} image_tag=${BUILD_NUMBER} app_name=${APP_NAME} cont_port=${CONTAINER_PORT}
+                    kubectl exec -n devops deployment/ansible -- bash -c \
+                        "echo 'ansible-playbook /tmp/test-deploy.yaml --extra-vars \"image_name=${IMAGE_NAME} image_tag=${BUILD_NUMBER} app_name=${APP_NAME}\"' > /tmp/deploy-script.sh"
+
+                    kubectl exec -n devops deployment/ansible -- bash /tmp/deploy-script.sh
+
                     """
                 }
             }
         }
+
+        // kubectl exec -n devops deployment/ansible -- bash -c "echo 'ansible-playbook /tmp/deploy-app.yml --extra-vars \"image_name=${IMAGE_NAME} image_tag=${BUILD_NUMBER} app_name=${APP_NAME}\"' > /tmp/deploy-script.sh"
 
         stage('Scale Application') {
             when {
