@@ -1,0 +1,69 @@
+# restrict it to run on Worker Node 1
+# Manual PRE SETUP
+# label worker node to worker_node01
+
+# ansible-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ansible
+  namespace: devops
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ansible
+  template:
+    metadata:
+      labels:
+        app: ansible
+    spec:
+      serviceAccountName: jenkins-ansible-sa  
+      nodeSelector:
+        node: worker_node01
+      containers:
+      - name: ansible
+        image: docker.io/sayantan2k21/ansible-master-minimal:rhel9-v1 # use base image # and setup manually
+        volumeMounts:
+        - name: ansible-playbooks
+          mountPath: /home/ansible/playbooks
+        - name: ssh-keys
+          mountPath: /home/ansible/ssh-keys
+        - name: kubectl-binary
+          mountPath: /usr/local/bin/kubectl
+        - name: service-account-token
+          mountPath: /var/run/secrets/kubernetes.io/serviceaccount
+          readOnly: true
+        env:
+        - name: ANSIBLE_HOST_KEY_CHECKING
+          value: "False"
+      volumes:
+      - name: ansible-playbooks
+        configMap:
+          name: ansible-playbooks
+      - name: ansible-inventory
+        configMap:
+          name: ansible-inventory
+      - name: ssh-keys
+        secret:
+          secretName: ansible-ssh-keys
+          defaultMode: 0600
+      - name: kubectl-binary
+        hostPath:
+          path: /usr/bin/kubectl
+      - name: service-account-token
+        secret:
+          secretName: jenkins-ansible-sa-token
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ansible-service
+  namespace: devops
+spec:
+  selector:
+    app: ansible
+  ports:
+  - port: 22
+    targetPort: 22
+  clusterIP: None

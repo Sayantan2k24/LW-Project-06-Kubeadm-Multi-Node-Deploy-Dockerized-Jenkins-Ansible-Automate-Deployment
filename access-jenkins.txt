@@ -1,0 +1,5 @@
+# Get Jenkins initial password
+kubectl exec -it deployment/jenkins -n devops -- cat /var/jenkins_home/secrets/initialAdminPassword
+
+# Access Jenkins UI
+http://<NODE_IP>:30080

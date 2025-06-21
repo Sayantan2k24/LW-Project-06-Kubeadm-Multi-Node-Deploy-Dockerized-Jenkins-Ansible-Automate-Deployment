@@ -1,0 +1,111 @@
+pipeline {
+    agent {
+        kubernetes {
+            yaml """
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    app: image-builder-agent
+spec:
+  containers:
+  - name: image-builder-agent
+    image: docker.io/sayantan2k21/image-builder-k8s-agent-minimal:alpine
+    securityContext:
+      privileged: true
+    command:
+    - cat
+    tty: true
+    volumeMounts:
+    - name: docker-graph-storage
+      mountPath: /var/lib/docker
+  volumes:
+  - name: docker-graph-storage
+    emptyDir: {}
+
+"""
+        }
+    }
+
+    environment {
+        DOCKER_REGISTRY = "sayantan2k21"
+        APP_NAME = "06-kubeadm-jenkins-ansible-test-app"
+        IMAGE_NAME = "${DOCKER_REGISTRY}/${APP_NAME}"
+        CONTAINER_PORT = "5000"
+        GITHUB_SOURCE_CODE_REPO = "https://github.com/Sayantan2k24/LW-Project-06-Kubeadm-Multi-Node-Deploy-Dockerized-Jenkins-Ansible-Automate-Deployment.git"
+        BRANCH = "main"
+    }
+
+    stages {
+        stage('Docker Build & Push') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'docker-cred', passwordVariable: 'pass', usernameVariable: 'user')]) {
+                    container('image-builder-agent') {
+                        script {
+                            sh """
+                            /usr/local/bin/dockerd-entrypoint.sh &
+
+                            sleep 10
+
+                            # Check Out SCM
+                            git clone -b ${BRANCH} ${GITHUB_SOURCE_CODE_REPO} workspace
+
+                            cd workspace/APP/
+
+                            # Login to Dockerhub
+                            echo ${pass} | docker login -u ${user} --password-stdin
+
+                            # Push to DockerHub
+                            docker build -t ${DOCKER_REGISTRY}/${IMAGE_NAME}:${BUILD_NUMBER} .
+                            docker push ${DOCKER_REGISTRY}/${IMAGE_NAME}:${BUILD_NUMBER}
+                            """
+                        }
+                    }
+                }
+            }
+        }
+
+
+        stage('Trigger Ansible Deployment') {
+            steps {
+                script {
+                    sh """
+                    # Trigger Ansible Playbook inside permanent Ansible Pod
+                    kubectl exec -n devops deployment/ansible -- \
+                      ansible-playbook /home/ansible/playbooks/deploy-app.yml \
+                      --extra-vars image_name=${IMAGE_NAME} image_tag=${BUILD_NUMBER} app_name=${APP_NAME} cont_port=${CONTAINER_PORT}
+                    """
+                }
+            }
+        }
+
+        stage('Scale Application') {
+            when {
+                branch 'production'
+            }
+            steps {
+                container('ansible') {
+                    sh '''
+                    ansible-playbook /etc/ansible/playbooks/scale-deployment.yml \
+                      --extra-vars replicas=5 app_name=${APP_NAME}
+                    '''
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo '✅ Deployment successful!'
+        }
+        failure {
+            echo '❌ Deployment failed!'
+        }
+    }
+}
+
+// kubectl exec -n devops deployment/ansible -- bash -c "
+// echo 'ansible-playbook /tmp/deploy-app.yml --extra-vars \"image_name=sayantan2k21/demo-flask image_tag=v17 app_name=demo-flask cont_port=50000\"' > /tmp/deploy-script.sh
+// "
+
+//  kubectl exec -n devops deployment/ansible -- bash /tmp/deploy-script.sh

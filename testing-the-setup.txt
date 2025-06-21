@@ -1,0 +1,8 @@
+# Test Ansible connectivity
+kubectl exec -it deployment/ansible -n devops -- ansible k8s-nodes -i /etc/ansible/inventory/hosts -m ping
+
+# Test kubectl access from Ansible pod
+kubectl exec -it deployment/ansible -n devops -- kubectl get nodes
+
+# Test manual playbook execution
+kubectl exec -it deployment/ansible -n devops -- ansible-playbook /etc/ansible/playbooks/deploy-app.yml
