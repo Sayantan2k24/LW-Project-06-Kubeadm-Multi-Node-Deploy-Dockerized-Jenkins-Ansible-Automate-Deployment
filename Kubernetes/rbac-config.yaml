@@ -25,7 +25,7 @@ metadata:
   name: jenkins-ansible-role
 rules:
 - apiGroups: [""]
-  resources: ["pods", "services", "endpoints", "persistentvolumeclaims", "events", "configmaps", "secrets", "nodes"]
+  resources: ["pods", "pods/exec", "services", "endpoints", "persistentvolumeclaims", "events", "configmaps", "secrets", "nodes"]
   verbs: ["create", "delete", "get", "list", "patch", "update", "watch"]
 - apiGroups: ["apps"]
   resources: ["deployments", "daemonsets", "replicasets", "statefulsets"]
