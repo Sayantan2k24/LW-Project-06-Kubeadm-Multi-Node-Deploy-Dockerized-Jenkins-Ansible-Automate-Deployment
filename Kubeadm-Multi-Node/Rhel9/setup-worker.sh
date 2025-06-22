@@ -69,6 +69,8 @@ systemctl enable --now kubelet
 echo "✅ Kubernetes common setup completed successfully."
 
 # copy the command
+kubeadm join <master-ip>:6443 --token <token> --discovery-token-ca-cert-hash <hash>
 
+# Example
 kubeadm join 172.31.84.118:6443 --token 7b477r.fbnsaxafe77nzlik \
         --discovery-token-ca-cert-hash sha256:87a91c9c8bcf70510576bb76f13d972a7edb7249980a800ed4c3d9b658af05b7
