@@ -26,13 +26,13 @@ spec:
       initContainers:
         - name: copy-playbooks
           image: busybox
-          command: ["/bin/sh", "-c", "cp -r /config/. /playbooks/"] # copies everything inside /config/ (including hidden files like .ansible.cfg etc.)
+          command: ["/bin/sh", "-c", "cp -a /config/. /playbooks/ && chown -R 1000:1000 /playbooks/"] # copies everything inside /config/ (including hidden files like .ansible.cfg etc.) # 1000 for ansible user ID and Grp ID
           volumeMounts:
             - name: ansible-playbooks-config
               mountPath: /config
             - name: ansible-playbooks
               mountPath: /playbooks
-              
+
       # define the main ansible container
       containers:
       - name: ansible
