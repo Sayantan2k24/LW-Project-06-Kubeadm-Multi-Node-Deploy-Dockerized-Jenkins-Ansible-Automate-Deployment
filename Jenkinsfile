@@ -29,7 +29,7 @@ spec:
 
     environment {
         DOCKER_REGISTRY = "docker.io/sayantan2k21"
-        APP_NAME = "06-kubeadm-jenkins-ansible-test-app"
+        APP_NAME = "06-flask-test-app"
         IMAGE_NAME = "${DOCKER_REGISTRY}/${APP_NAME}"
         GITHUB_SOURCE_CODE_REPO = "https://github.com/Sayantan2k24/LW-Project-06-Kubeadm-Multi-Node-Deploy-Dockerized-Jenkins-Ansible-Automate-Deployment.git"
         BRANCH = "main"
