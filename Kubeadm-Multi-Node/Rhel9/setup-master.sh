@@ -66,12 +66,8 @@ dnf install -y cri-o kubelet kubeadm kubectl cri-tools
 systemctl enable --now crio
 systemctl enable --now kubelet
 
-echo "✅ Kubernetes common setup completed successfully."
 
 
-#!/bin/bash
-
-set -e
 
 # Define variables
 MASTER_PRIVATE_IP=$(ip addr show eth0 | awk '/inet / {print $2}' | cut -d/ -f1)
@@ -91,7 +87,9 @@ mkdir -p $HOME/.kube
 cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
 chown $(id -u):$(id -g) $HOME/.kube/config
 
-###############################
+echo "✅ Kubernetes common setup completed successfully."
+
+#########################
 curl -o calico.yaml https://raw.githubusercontent.com/projectcalico/calico/master/manifests/calico.yaml
 
 ####################################

@@ -74,7 +74,7 @@ data:
                   spec:
                     containers:
                     - name: "{{ app_name }}-container"
-                      image: "docker.io/{{ image_name }}/{{ image_tag }}"
+                      image: "docker.io/{{ image_name }}:{{ image_tag }}"
                       ports:
                       - containerPort: 5000
 
