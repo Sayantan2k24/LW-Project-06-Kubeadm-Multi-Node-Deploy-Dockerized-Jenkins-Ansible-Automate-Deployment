@@ -55,8 +55,8 @@ spec:
                             echo ${pass} | docker login -u ${user} --password-stdin
 
                             # Push to DockerHub
-                            docker build -t ${DOCKER_REGISTRY}/${IMAGE_NAME}:${BUILD_NUMBER} .
-                            docker push ${DOCKER_REGISTRY}/${IMAGE_NAME}:${BUILD_NUMBER}
+                            docker build -t ${IMAGE_NAME}:${BUILD_NUMBER} .
+                            docker push ${IMAGE_NAME}:${BUILD_NUMBER}
                             """
                         }
                     }
