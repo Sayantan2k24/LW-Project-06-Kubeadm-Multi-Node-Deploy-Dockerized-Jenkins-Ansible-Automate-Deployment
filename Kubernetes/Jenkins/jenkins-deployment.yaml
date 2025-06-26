@@ -37,6 +37,10 @@ spec:
       serviceAccountName: jenkins-ansible-sa
       nodeSelector:
         node: master_node # manual Scheduling
+      tolerations: # applying toleration also # in case don't want to remove the taint from the node
+      - key: "node-role.kubernetes.io/control-plane"
+        operator: "Exists"
+        effect: "NoSchedule"
       containers:
       - name: jenkins
         image: docker.io/sayantan2k21/jenkins-master:rhel9-v1
