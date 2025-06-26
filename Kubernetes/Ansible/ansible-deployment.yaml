@@ -19,8 +19,8 @@ spec:
         app: ansible
     spec:
       serviceAccountName: jenkins-ansible-sa  
-      nodeSelector:
-        node: worker_node01
+      nodeSelector:  
+        node: worker_node01 # manual Scheduling
 
       # define an init contnainer that copies files from one volume to another volume, writable
       initContainers:

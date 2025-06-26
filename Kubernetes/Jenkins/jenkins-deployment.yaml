@@ -36,7 +36,7 @@ spec:
     spec:
       serviceAccountName: jenkins-ansible-sa
       nodeSelector:
-        node: master_node
+        node: master_node # manual Scheduling
       containers:
       - name: jenkins
         image: docker.io/sayantan2k21/jenkins-master:rhel9-v1
