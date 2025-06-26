@@ -9,20 +9,26 @@ metadata:
     app: image-builder-agent
 spec:
   containers:
-  - name: image-builder-agent
-    image: docker.io/sayantan2k21/image-builder-k8s-agent:rhel9
+  - name: dind-daemon
+    image: docker:24.0-dind
     securityContext:
       privileged: true
-    command:
-    - cat
-    tty: true
     volumeMounts:
     - name: docker-graph-storage
       mountPath: /var/lib/docker
+
+  - name: docker-cli
+    image: docker:24.0-cli
+    command:
+    - cat
+    tty: true
+    env:
+    - name: DOCKER_HOST
+      value: "tcp://localhost:2375"
+
   volumes:
   - name: docker-graph-storage
     emptyDir: {}
-
 """
         }
     }
@@ -39,24 +45,22 @@ spec:
         stage('Docker Build & Push') {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'dockerhub-cred', passwordVariable: 'pass', usernameVariable: 'user')]) {
-                    container('image-builder-agent') {
+                    container('docker-cli') {
                         script {
                             sh """
-                            /usr/local/bin/dockerd-entrypoint.sh &
+                            # Wait for DinD daemon to be fully ready
+                            until docker info; do echo "Waiting for Docker Daemon..."; sleep 2; done
 
-                            sleep 10
-
-                            # Check Out SCM
+                            # Clone source code
                             git clone -b ${BRANCH} ${GITHUB_SOURCE_CODE_REPO} workspace
-
                             cd workspace/APP/
 
-                            # Login to Dockerhub
+                            # Login to DockerHub
                             echo ${pass} | docker login -u ${user} --password-stdin
 
-                            # Push to DockerHub
-                            docker build -t ${DOCKER_REGISTRY}/${IMAGE_NAME}:${BUILD_NUMBER} .
-                            docker push ${DOCKER_REGISTRY}/${IMAGE_NAME}:${BUILD_NUMBER}
+                            # Build and Push
+                            docker build -t ${IMAGE_NAME}:${BUILD_NUMBER} .
+                            docker push ${IMAGE_NAME}:${BUILD_NUMBER}
                             """
                         }
                     }
@@ -64,33 +68,18 @@ spec:
             }
         }
 
-
         stage('Trigger Ansible Deployment') {
             steps {
                 script {
                     sh """
-                        kubectl exec -n devops deployment/ansible -- bash -c 'cat <<EOF > /tmp/deploy-script.sh
+                    kubectl exec -n devops deployment/ansible -- bash -c 'cat <<EOF > /tmp/deploy-script.sh
 ansible-playbook /home/ansible/playbooks/deploy-app.yml --extra-vars "image_name=${IMAGE_NAME} image_tag=${BUILD_NUMBER} app_name=${APP_NAME}"
 EOF'
-                        kubectl exec -n devops deployment/ansible -- bash /tmp/deploy-script.sh
+                    kubectl exec -n devops deployment/ansible -- bash /tmp/deploy-script.sh
                     """
                 }
             }
         }
-
-        // stage('Scale Application') {
-        //     when {
-        //         branch 'production'
-        //     }
-        //     steps {
-        //         container('ansible') {
-        //             sh '''
-        //             ansible-playbook /etc/ansible/playbooks/scale-deployment.yml \
-        //               --extra-vars replicas=5 app_name=${APP_NAME}
-        //             '''
-        //         }
-        //     }
-        // }
     }
 
     post {
