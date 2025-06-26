@@ -33,8 +33,7 @@ def host_info():
         "maintainer": "Sayantan Samanta",
         "hostname": hostname,
         "local_ip": local_ip,
-        "Message": "Deployment Automation by Docker, K8s, Jenkins and Ansible",
-        "App Name": "host-info-app"
+        "Message": "Automated Image Build and Deployment"
     })
 
 if __name__ == '__main__':
