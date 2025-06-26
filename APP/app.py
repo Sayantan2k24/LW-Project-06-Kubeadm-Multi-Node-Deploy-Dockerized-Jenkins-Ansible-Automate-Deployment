@@ -32,7 +32,8 @@ def host_info():
         "project": "project06",
         "maintainer": "Sayantan",
         "hostname": hostname,
-        "local_ip": local_ip
+        "local_ip": local_ip,
+        "Message": "Deployment Automation by Docker, K8s, Jenkins and Ansible"
     })
 
 if __name__ == '__main__':
