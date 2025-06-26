@@ -30,7 +30,7 @@ def host_info():
 
     return jsonify({
         "project": "project06",
-        "maintainer": "Sayantan",
+        "maintainer": "Sayantan Samanta",
         "hostname": hostname,
         "local_ip": local_ip,
         "Message": "Deployment Automation by Docker, K8s, Jenkins and Ansible"
