@@ -33,7 +33,7 @@ def host_info():
         "maintainer": "Sayantan Samanta",
         "hostname": hostname,
         "local_ip": local_ip,
-        "Message": "new testing"
+        "Message": "new testing..................."
     })
 
 if __name__ == '__main__':
