@@ -62,8 +62,17 @@ data:
             kind: Deployment
             namespace: default
             definition:
+              metadata:
+                name: "{{ app_name }}"
+                labels:
+                  app: "{{ app_name }}"
               spec:
                 replicas: 3
+                strategy: 
+                  type: RollingUpdate
+                  rollingUpdate:
+                    maxUnavailable: 1
+                    maxSurge: 1
                 selector:
                   matchLabels:
                     app: "{{ app_name }}"
