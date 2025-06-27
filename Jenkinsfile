@@ -1,6 +1,7 @@
 pipeline {
     agent any // Global agent: run on Jenkins master pod (for lightweight stages like triggering Ansible)
-
+    // as no agent is configured, by default run in the jenkins master pod
+    
     environment {
         DOCKER_REGISTRY = "docker.io/sayantan2k21"
         APP_NAME = "host-info-app"
