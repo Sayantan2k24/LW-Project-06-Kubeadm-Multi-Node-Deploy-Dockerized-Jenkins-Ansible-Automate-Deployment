@@ -1,4 +1,6 @@
 # LW-Project-06-Kubeadm-Multi-Node-Deploy-Dockerized-Jenkins-Ansible-Automate-Deployment
+## Check the Detailed BLOG for understanding the hands on part:
+### https://sayantansamanta098.medium.com/project-06-end-to-end-kubernetes-kubeadm-ci-cd-with-dockerized-jenkins-and-ansible-e2a7b8dd5169
 
 ## Architecture Flow
 Here's how the components will work together:
