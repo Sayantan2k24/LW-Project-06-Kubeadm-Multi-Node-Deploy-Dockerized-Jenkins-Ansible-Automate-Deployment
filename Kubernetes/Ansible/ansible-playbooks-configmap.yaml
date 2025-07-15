@@ -71,8 +71,8 @@ data:
                 strategy: 
                   type: RollingUpdate
                   rollingUpdate:
-                    maxUnavailable: 1
-                    maxSurge: 1
+                    maxUnavailable: 1     # `maxUnavailable: 1` means at any given time during the update, at most one pod can be unavailable (either terminating or not yet running).
+                    maxSurge: 1           # `maxSurge: 1` means that at most one extra pod (beyond the desired number of replicas) can be created during the update. 
                 selector:
                   matchLabels:
                     app: "{{ app_name }}"
